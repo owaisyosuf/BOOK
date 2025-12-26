@@ -31,7 +31,12 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Specification-First Development: Verify all features are defined through comprehensive specifications before implementation
+- Factual Accuracy and Verifiability: Ensure all technical claims will be verifiable from official documentation
+- RAG Integrity and Hallucination Prevention: Confirm the RAG chatbot design will strictly answer based only on retrieved context with proper citations
+- Modular and Maintainable System Design: Verify clear separation of concerns between frontend, backend, vector DB, and metadata storage
+- Performance and Latency Optimization: Define performance budgets and SLOs for low-latency responses
+- Reproducibility and Documentation Standards: Ensure all code, prompts, and architecture will be reproducible through documentation
 
 ## Project Structure
 

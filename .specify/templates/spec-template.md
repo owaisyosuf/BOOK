@@ -84,16 +84,19 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+- **FR-001**: System MUST follow specification-first development approach with comprehensive specs before implementation
+- **FR-002**: System MUST ensure all technical claims are verifiable from official documentation
+- **FR-003**: RAG chatbot MUST strictly answer questions based only on retrieved context from book content
+- **FR-004**: RAG chatbot MUST cite retrieved context in all responses
+- **FR-005**: RAG chatbot MUST clearly indicate when information is not found in the context
+- **FR-006**: System MUST maintain low-latency responses suitable for web embedding
+- **FR-007**: System MUST be modular with clear separation of concerns between components
+- **FR-008**: All code, prompts, and architecture MUST be completely reproducible through documentation
 
 *Example of marking unclear requirements:*
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+- **FR-009**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
+- **FR-010**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
 ### Key Entities *(include if feature involves data)*
 
