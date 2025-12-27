@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git --version)",
+      "Skill(sp.plan)",
+      "Bash(powershell -Command \".specify/scripts/powershell/setup-plan.ps1 -Json\")",
+      "Bash(powershell -Command \".specify/scripts/powershell/check-prerequisites.ps1 -Json\")",
+      "Bash(pip install openai langchain langchain-community qdrant-client)",
+      "Bash(python test_structure.py)",
+      "Bash(python test_structure_simple.py)"
+    ]
+  }
+}
