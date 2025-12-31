@@ -1,0 +1,222 @@
+# API Contract: RAG Chatbot Service
+
+## Overview
+This document defines the API contract for the RAG chatbot service that powers the AI-driven technical book with integrated Q&A functionality.
+
+## Base URL
+```
+https://api.yourdomain.com  # Production
+http://localhost:8000      # Development
+```
+
+## Authentication
+All API endpoints require no authentication for the initial implementation. Rate limiting is applied per IP address.
+
+## Common Response Format
+
+### Success Response
+```json
+{
+  "status": "success",
+  "data": { ... },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+### Error Response
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error message",
+    "details": { ... }
+  },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+## Endpoints
+
+### 1. Query RAG System
+- **Endpoint**: `POST /api/chat`
+- **Purpose**: Submit a question to the RAG system and receive a response based on book content
+
+#### Request
+```json
+{
+  "query": "string (required) - The question to ask",
+  "scope": "enum (optional) - Query scope: 'full_book', 'section', 'page'",
+  "section": "string (optional) - Section name if scope is 'section' or 'page'"
+}
+```
+
+#### Request Validation
+- `query`: Required, minimum 3 characters, maximum 1000 characters
+- `scope`: Optional, default is "full_book", must be one of allowed values
+- `section`: Required only when scope is "section" or "page"
+
+#### Success Response (200 OK)
+```json
+{
+  "status": "success",
+  "data": {
+    "response": "string - AI-generated response based on book content",
+    "status": "enum - 'success', 'not_found', 'error'",
+    "citations": [
+      {
+        "page_path": "string - Path to the source page",
+        "content_snippet": "string - Relevant content snippet",
+        "position": "integer - Position in original content"
+      }
+    ],
+    "processing_time_ms": "integer - Time taken to process the query"
+  },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+#### Error Responses
+- `400 Bad Request`: Invalid request parameters
+- `422 Unprocessable Entity`: Validation errors
+- `500 Internal Server Error`: Server processing errors
+
+#### Example Request
+```bash
+curl -X POST https://api.yourdomain.com/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "What are the key principles of RAG systems?",
+    "scope": "full_book"
+  }'
+```
+
+#### Example Response
+```json
+{
+  "status": "success",
+  "data": {
+    "response": "RAG systems combine retrieval and generation components...",
+    "status": "success",
+    "citations": [
+      {
+        "page_path": "/docs/advanced-topics/rag-principles",
+        "content_snippet": "RAG systems combine retrieval and generation components...",
+        "position": 150
+      }
+    ],
+    "processing_time_ms": 1250
+  },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+### 2. Health Check
+- **Endpoint**: `GET /health`
+- **Purpose**: Check the health status of the API service
+
+#### Success Response (200 OK)
+```json
+{
+  "status": "success",
+  "data": {
+    "status": "healthy",
+    "version": "1.0.0",
+    "timestamp": "2025-12-27T10:00:00Z",
+    "dependencies": {
+      "qdrant": "healthy",
+      "openai": "healthy",
+      "postgres": "healthy"
+    }
+  },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+### 3. Index Book Content
+- **Endpoint**: `POST /api/index`
+- **Purpose**: Index book content into the vector database
+
+#### Request
+```json
+{
+  "content": "string (required) - Book content in Markdown format",
+  "title": "string (required) - Content title",
+  "page_path": "string (required) - Path for navigation",
+  "section": "string (optional) - Book section"
+}
+```
+
+#### Request Validation
+- `content`: Required, minimum 10 characters
+- `title`: Required, maximum 200 characters
+- `page_path`: Required, must be a valid URL path
+
+#### Success Response (200 OK)
+```json
+{
+  "status": "success",
+  "data": {
+    "indexed_id": "uuid - ID of the indexed content",
+    "message": "string - Success message",
+    "processing_time_ms": "integer - Time taken to index"
+  },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+### 4. List Book Content
+- **Endpoint**: `GET /api/content`
+- **Purpose**: Retrieve list of available book content
+
+#### Query Parameters
+- `section` (optional): Filter by section
+- `limit` (optional): Number of results to return (default: 20, max: 100)
+- `offset` (optional): Number of results to skip (default: 0)
+
+#### Success Response (200 OK)
+```json
+{
+  "status": "success",
+  "data": {
+    "items": [
+      {
+        "id": "uuid",
+        "title": "string",
+        "page_path": "string",
+        "section": "string",
+        "created_at": "2025-12-27T10:00:00Z"
+      }
+    ],
+    "total": "integer - Total number of items",
+    "limit": "integer - Requested limit",
+    "offset": "integer - Requested offset"
+  },
+  "timestamp": "2025-12-27T10:00:00Z"
+}
+```
+
+## Rate Limiting
+- Queries per minute: 60 requests per IP
+- Burst limit: 10 requests
+- Response header: `X-RateLimit-Remaining`
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `INVALID_QUERY` | 400 | Query parameter is invalid |
+| `QUERY_TOO_SHORT` | 400 | Query is too short |
+| `SCOPE_INVALID` | 400 | Scope parameter is invalid |
+| `SECTION_REQUIRED` | 400 | Section parameter required for scope |
+| `CONTENT_NOT_FOUND` | 404 | No content found for query |
+| `PROCESSING_ERROR` | 500 | Internal processing error |
+| `DEPENDENCY_ERROR` | 500 | External service error |
+
+## Performance SLA
+- 95th percentile response time: <3 seconds
+- Availability: 99% uptime
+- Error rate: <1%
+
+## Versioning
+This API uses URI versioning. Current version is v1. Future versions will be available at `/api/v2/`, `/api/v3/`, etc.

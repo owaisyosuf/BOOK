@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git --version)",
+      "Skill(sp.plan)",
+      "Bash(powershell -Command \".specify/scripts/powershell/setup-plan.ps1 -Json\")",
+      "Bash(powershell -Command \".specify/scripts/powershell/check-prerequisites.ps1 -Json\")",
+      "Bash(pip install openai langchain langchain-community qdrant-client)",
+      "Bash(python test_structure.py)",
+      "Bash(python test_structure_simple.py)",
+      "Bash(npm run build:*)",
+      "Bash(npm install)",
+      "Bash(powershell \"[System.IO.File]::ReadAllText\\(''G:\\\\book\\\\backend\\\\src\\\\api\\\\main.py''\\)\")",
+      "Bash(.specify/scripts/bash/create-phr.sh:*)",
+      "Bash(git rev-parse --is-inside-work-tree)",
+      "Bash(git rev-parse:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
