@@ -18,7 +18,7 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = async (queryText, scope = "full_book") => {
+  const handleSubmit = async (queryText, scope = "full_book", section = null) => {
     // Add user message to the chat
     const userMessage = {
       id: Date.now(),
@@ -31,24 +31,42 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      // In a real implementation, this would call the backend API
-      // For now, we'll simulate an API call
-      const response = await simulateApiCall(queryText, scope);
+      const response = await fetch('/api/v1/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: queryText,
+          scope: scope,
+          section: section
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json();
+
+      if (result.status === 'error') {
+        throw new Error(result.error?.message || 'Error processing query');
+      }
 
       const botMessage = {
         id: Date.now() + 1,
-        text: response.response,
+        text: result.data.response,
         sender: 'bot',
-        citations: response.citations || [],
+        citations: result.data.citations || [],
         timestamp: new Date(),
-        status: response.status
+        status: result.data.status
       };
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       const errorMessage = {
         id: Date.now() + 1,
-        text: "Sorry, I encountered an error processing your query. Please try again.",
+        text: `Sorry, I encountered an error: ${error.message}. Please try again.`,
         sender: 'bot',
         timestamp: new Date(),
         status: 'error'
@@ -57,33 +75,6 @@ const ChatInterface = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Simulate API call - in real implementation, this would call the backend
-  const simulateApiCall = async (query, scope) => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // This is a placeholder response - real implementation would call the backend API
-    if (query.toLowerCase().includes("not found") || Math.random() > 0.8) {
-      return {
-        response: "Information not found in the book content.",
-        status: "not_found",
-        citations: []
-      };
-    }
-
-    return {
-      response: `This is a simulated response to your query: "${query}". In a real implementation, this would come from the RAG system based on the book content.`,
-      status: "success",
-      citations: [
-        {
-          page_path: "/docs/getting-started",
-          content_snippet: "Retrieval-Augmented Generation (RAG) systems combine the power of information retrieval with text generation...",
-          position: 10
-        }
-      ]
-    };
   };
 
   return (

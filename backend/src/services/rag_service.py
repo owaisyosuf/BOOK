@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class RAGService:
+    _cache = {}  # Simple in-memory cache
+
     def __init__(self):
         self.embedding_service = EmbeddingService()
         # Initialize OpenAI chat model
@@ -25,11 +27,16 @@ class RAGService:
 
         # Define the prompt template for RAG
         self.rag_prompt = ChatPromptTemplate.from_messages([
-            SystemMessage(content="""You are a helpful assistant that answers questions based only on the provided context.
-            If the answer is not available in the context, clearly state that the information is not found.
-            Always cite the sources from the context when providing answers.
-            Do not make up information that is not in the context."""),
-            HumanMessage(content="Context: {context}\n\nQuestion: {question}\n\nPlease provide an answer based only on the context above, with citations where appropriate.")
+            SystemMessage(content="""You are a specialized technical book assistant. Your ONLY source of information is the provided context.
+
+            STRICT RULES:
+            1. ONLY answer based on the provided context.
+            2. If the answer is NOT in the context, say EXACTLY: "Information not found in the book content."
+            3. Do NOT use any outside knowledge.
+            4. Cite your sources using [source_number] format corresponding to the context parts provided.
+            5. If the context is empty or irrelevant, follow rule #2.
+            6. Provide concise and accurate technical answers."""),
+            HumanMessage(content="Context: {context}\n\nQuestion: {question}\n\nAssistant:")
         ])
 
     async def process_query(
@@ -41,6 +48,12 @@ class RAGService:
         """
         Process a query using RAG methodology
         """
+        # Check cache
+        cache_key = f"{query_text}:{scope}:{section}"
+        if cache_key in self._cache:
+            logger.info(f"Cache hit for query: {query_text}")
+            return self._cache[cache_key]
+
         try:
             # Search for relevant context based on the query
             search_results = await self.embedding_service.search_similar(
@@ -100,11 +113,15 @@ class RAGService:
             response_text = response.generations[0][0].text
 
             # Return the response with status and citations
-            return {
+            result = {
                 "response": response_text,
                 "status": "success",
                 "citations": citations
             }
+
+            # Update cache
+            self._cache[cache_key] = result
+            return result
 
         except Exception as e:
             logger.error(f"Error processing query: {str(e)}")

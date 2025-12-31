@@ -22,7 +22,7 @@ class QueryModel(BaseModel):
     id: Optional[str] = None
     query_text: str = Field(..., min_length=3, max_length=1000)
     user_id: Optional[str] = None
-    scope: str = Field(default="full_book", regex=r"^(full_book|section|page)$")
+    scope: str = Field(default="full_book", pattern=r"^(full_book|section|page)$")
     section_id: Optional[str] = None
     created_at: Optional[datetime] = None
 
@@ -33,7 +33,7 @@ class QueryModel(BaseModel):
 class QueryCreate(BaseModel):
     query_text: str = Field(..., min_length=3, max_length=1000)
     user_id: Optional[str] = None
-    scope: str = Field(default="full_book", regex=r"^(full_book|section|page)$")
+    scope: str = Field(default="full_book", pattern=r"^(full_book|section|page)$")
     section: Optional[str] = None  # This will be converted to section_id in the service
 
     class Config:

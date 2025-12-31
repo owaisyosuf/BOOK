@@ -17,13 +17,13 @@ logger = logging.getLogger(__name__)
 
 class ChatRequest(BaseModel):
     query: str = Field(..., min_length=3, max_length=1000)
-    scope: str = Field(default="full_book", regex=r"^(full_book|section|page)$")
+    scope: str = Field(default="full_book", pattern=r"^(full_book|section|page)$")
     section: str = Field(default=None)
 
 
 class ChatResponse(BaseModel):
     response: str
-    status: str = Field(..., regex=r"^(success|not_found|error)$")
+    status: str = Field(..., pattern=r"^(success|not_found|error)$")
     citations: List[Dict[str, Any]]
     processing_time_ms: int
 

@@ -29,6 +29,32 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+/* Book layout styling */
+.book-content {
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+/* Code block styling */
+code {
+  background-color: var(--ifm-color-emphasis-100);
+  border-radius: var(--ifm-global-radius);
+  padding: 0.1rem 0.3rem;
+}
+
+pre {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 996px) {
+  .book-content {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+}
+
 /* Custom styles for the RAG chatbot interface */
 .chatbot-container {
   margin: 2rem 0;
